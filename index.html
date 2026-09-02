@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ritvick Raghuvanshi — Mechanical Engineering &amp; Robotics</title>
+<meta name="description" content="Mechanical engineering, robotics, and intelligent systems — portfolio of Ritvick Raghuvanshi, UCSB." />
+<link rel="icon" href="assets/favicon.ico" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="ambient-glow" aria-hidden="true"></div>
+<div class="cursor-spot" id="cursorSpot" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="progress-bar" id="progressBar" aria-hidden="true"></div>
+
+<!-- ===================== NAVBAR ===================== -->
+<header class="navbar" id="navbar">
+  <div class="navbar-inner">
+    <a href="#top" class="logo">RR</a>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="#about">About</a>
+      <a href="#skills">Skills</a>
+      <a href="#projects">Projects</a>
+      <a href="#experience">Experience</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <div class="navbar-actions">
+      <a class="btn btn-ghost resume-link magnetic" href="assets/Ritvick_Raghuvanshi_Resume_1.pdf" target="_blank" rel="noopener noreferrer">Resume</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <nav class="nav-links-mobile" id="navLinksMobile">
+    <a href="#about">About</a>
+    <a href="#skills">Skills</a>
+    <a href="#projects">Projects</a>
+    <a href="#experience">Experience</a>
+    <a href="#contact">Contact</a>
+    <a href="assets/Ritvick_Raghuvanshi_Resume_1.pdf" target="_blank" rel="noopener noreferrer">Resume</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero">
+    <div class="hero-field" aria-hidden="true">
+      <canvas id="fieldCanvas"></canvas>
+    </div>
+    <div class="hero-vignette" aria-hidden="true"></div>
+
+    <div class="hero-content" id="heroContent">
+      <p class="eyebrow reveal">UCSB Mechanical Engineering</p>
+      <h1 class="hero-title reveal">Ritvick Raghuvanshi</h1>
+      <p class="hero-sub reveal">
+        Building intelligent systems through robotics, manufacturing,
+        engineering design, and data-driven problem solving.
+      </p>
+      <div class="hero-actions reveal">
+        <a href="#projects" class="btn btn-primary magnetic">View Projects</a>
+        <a href="assets/Ritvick_Raghuvanshi_Resume_1.pdf" target="_blank" rel="noopener noreferrer" class="btn btn-ghost magnetic">Resume</a>
+      </div>
+    </div>
+
+    <a href="#about" class="scroll-cue" aria-label="Scroll down">
+      <span></span>
+    </a>
+  </section>
+
+  <!-- ===================== ABOUT ===================== -->
+  <section id="about" class="section about-section">
+    <div class="container narrow">
+      <p class="section-eyebrow reveal">01 — About</p>
+      <h2 class="section-title reveal">About Me</h2>
+    </div>
+    <div class="container narrow">
+      <p class="scroll-text" data-scroll-text>
+        I am a Mechanical Engineering student at UCSB with interests in
+        robotics, manufacturing, automotive systems, and intelligent
+        engineering design. My experience spans laboratory research,
+        robotics leadership, CAD modeling, data analysis, and software
+        development. Through projects ranging from AI-powered SmartBins
+        and natural disaster monitoring systems to competition robotics
+        and mechanical design, I enjoy building solutions that combine
+        hardware, software, and engineering fundamentals.
+      </p>
+    </div>
+
+    <div class="container narrow">
+      <div class="about-stats reveal">
+        <div class="stat">
+          <span class="stat-num" data-count-to="8">0</span>
+          <span class="stat-label">Competition robots built</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num" data-count-to="15000" data-suffix="+">0</span>
+          <span class="stat-label">Sensor data points processed</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num" data-count-to="4" data-suffix=" yrs">0</span>
+          <span class="stat-label">VEX &amp; FTC robotics leadership</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SKILLS ===================== -->
+  <section id="skills" class="section">
+    <div class="container">
+      <p class="section-eyebrow reveal">02 — Skills</p>
+      <h2 class="section-title reveal">Skills &amp; Tools</h2>
+
+      <div class="skills-grid reveal">
+        <div class="skill-card">
+          <h3>Languages</h3>
+          <ul class="tag-list">
+            <li>Python</li><li>Java</li><li>MATLAB</li><li>C++</li>
+            <li>HTML/CSS</li><li>JavaScript</li><li>SQL</li>
+          </ul>
+        </div>
+
+        <div class="skill-card">
+          <h3>Engineering Tools</h3>
+          <ul class="tag-list">
+            <li>SolidWorks</li><li>Fusion 360</li><li>FEA</li><li>ANSYS</li>
+            <li>3D Printing</li><li>CNC Machining</li><li>Welding</li>
+          </ul>
+        </div>
+
+        <div class="skill-card">
+          <h3>Core Competencies</h3>
+          <ul class="tag-list">
+            <li>CAD Design</li><li>Machine Learning</li>
+            <li>Project Management</li><li>Public Speaking</li>
+            <li>Computer Vision</li><li>Embedded Systems</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PROJECTS ===================== -->
+  <section id="projects" class="section">
+    <div class="container">
+      <p class="section-eyebrow reveal">03 — Projects</p>
+      <h2 class="section-title reveal">Featured Projects</h2>
+
+      <div class="project-grid reveal" id="projectGrid"></div>
+    </div>
+  </section>
+
+  <!-- ===================== EXPERIENCE ===================== -->
+  <section id="experience" class="section">
+    <div class="container narrow">
+      <p class="section-eyebrow reveal">04 — Experience</p>
+      <h2 class="section-title reveal">Experience</h2>
+
+      <div class="timeline reveal">
+        <div class="timeline-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-body">
+            <div class="timeline-head">
+              <h3>Gaucho Racing — Formula SAE</h3>
+              <span class="timeline-date">2025 – Current</span>
+            </div>
+            <p class="timeline-role">Mechanical Engineering Team Member · UC Santa Barbara</p>
+            <ul>
+              <li>Contributed to design and development of a Formula SAE-style race vehicle, focused on mechanical systems integration</li>
+              <li>Used SolidWorks to support design of chassis, suspension, and drivetrain components under tight performance constraints</li>
+              <li>Assisted in fabrication and assembly, including machining, fastener selection, and subsystem testing</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-body">
+            <div class="timeline-head">
+              <h3>VEX &amp; FTC Robotics</h3>
+              <span class="timeline-date">2020 – 2025</span>
+            </div>
+            <p class="timeline-role">Team Captain, Mechanical Lead &amp; Designer · Mountain House / Santa Barbara, CA</p>
+            <ul>
+              <li>Led the VEX team for 4 years, managing design, programming, and fabrication of 8 competition robots</li>
+              <li>Selected as mechanical designer for the UCSB VEX Robotics team; led design of a robot that qualified for the VEX World Championship</li>
+              <li>Founded and mentored a middle school FTC team, guiding 15 students in CAD, coding, and systems integration</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-body">
+            <div class="timeline-head">
+              <h3>Boy Scouts of America</h3>
+              <span class="timeline-date">Eagle Scout</span>
+            </div>
+            <p class="timeline-role">Senior Patrol Leader / Eagle Scout</p>
+            <ul>
+              <li>Designed and built 3 balance beams for motor skill development of children with autism, for a local autism center</li>
+              <li>Led and supervised a team of 25 volunteers, ensuring structural integrity, safety compliance, and long-term durability</li>
+              <li>Managed logistics, budgeting, and fundraising — executing the full project under $1,000</li>
+            </ul>
+          </div>
+        </div>
+       
+        <div class="timeline-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-body">
+            <div class="timeline-head">
+              <h3>Lawrence Livermore National Laboratory</h3>
+              <span class="timeline-date">2023 – 2025</span>
+            </div>
+            <p class="timeline-role">Laboratory Intern · Livermore, CA</p>
+            <ul>
+              <li>Improved performance of magnetic data storage systems used in high-efficiency energy applications</li>
+              <li>Developed and automated Python &amp; MATLAB scripts to process 10,000+ data points, improving efficiency by 15%</li>
+              <li>Conducted 50+ performance tests to validate sensor durability under operating conditions</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CONTACT ===================== -->
+  <section id="contact" class="section">
+    <div class="container narrow contact-wrap">
+      <p class="section-eyebrow reveal">05 — Contact</p>
+      <h2 class="section-title reveal">Let's build something.</h2>
+      <p class="lead reveal">
+        Open to internships, research, and robotics collaborations.
+        The fastest way to reach me is LinkedIn or GitHub — or grab my
+        resume for full contact details.
+      </p>
+
+      <div class="contact-links reveal">
+        <a class="contact-card" href="https://linkedin.com/in/rraghuvanshi1" target="_blank" rel="noopener noreferrer">
+          <span class="contact-label">LinkedIn</span>
+          <span class="contact-value">linkedin.com/in/rraghuvanshi1</span>
+        </a>
+        <a class="contact-card" href="https://github.com/ritvick4u" target="_blank" rel="noopener noreferrer">
+          <span class="contact-label">GitHub</span>
+          <span class="contact-value">github.com/ritvick4u</span>
+        </a>
+        <a class="contact-card" href="assets/Ritvick_Raghuvanshi_Resume_1.pdf" target="_blank" rel="noopener noreferrer">
+          <span class="contact-label">Resume</span>
+          <span class="contact-value">Download PDF</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <span>© <span id="year"></span> Ritvick Raghuvanshi</span>
+    <div class="footer-links">
+      <a href="https://linkedin.com/in/rraghuvanshi1" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a href="https://github.com/ritvick4u" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="#top">Back to top</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ===================== PROJECT MODAL ===================== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+    <div class="modal-gallery" id="modalGallery"></div>
+    <div class="modal-body">
+      <p class="modal-subtitle" id="modalSubtitle"></p>
+      <h3 class="modal-title" id="modalTitle"></h3>
+      <p class="modal-desc" id="modalDesc"></p>
+      <ul class="tag-list" id="modalSkills"></ul>
+    </div>
+  </div>
+</div>
+
+<script src="projects.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
