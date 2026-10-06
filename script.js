@@ -2,87 +2,14 @@
   "use strict";
 
   /* ═══════════════════════════════════════════════════════════════
-     INJECTED STYLES  — drop-in, no edits needed in styles.css
-  ═══════════════════════════════════════════════════════════════ */
-  var S = document.createElement("style");
-  S.textContent = `
-    /* ── Engineering grid behind every .section ── */
-    .section {
-      background-image:
-        linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
-        linear-gradient(90deg,rgba(255,255,255,.028) 1px, transparent 1px),
-        linear-gradient(rgba(255,255,255,.008) 1px, transparent 1px),
-        linear-gradient(90deg,rgba(255,255,255,.008) 1px, transparent 1px);
-      background-size: 80px 80px, 80px 80px, 20px 20px, 20px 20px;
-    }
-
-    /* ── Tolerance-gauge progress bar ── */
-    .progress-bar {
-      background: linear-gradient(90deg,
-        rgba(255,255,255,.4) 0%,
-        rgba(255,255,255,.95) 50%,
-        rgba(255,255,255,.4) 100%
-      ) !important;
-      box-shadow: 0 0 6px rgba(255,255,255,.22) !important;
-    }
-    .progress-bar::after {
-      content: '';
-      position: absolute;
-      right: -1px; top: -4px;
-      width: 2px; height: 10px;
-      background: #fff;
-      border-radius: 1px;
-      box-shadow: 0 0 8px rgba(255,255,255,.7);
-    }
-
-    /* ── Stats: let SVG brackets overflow the card ── */
-    .stat { overflow: visible !important; position: relative; }
-
-    /* ── Technical annotation on project card hover ── */
-    .proj-ann {
-      position: absolute; top: 10px; left: 10px; z-index: 4;
-      pointer-events: none;
-      opacity: 0; transform: translateY(5px);
-      transition: opacity .25s ease, transform .25s ease;
-    }
-    .project-card:hover .proj-ann { opacity: 1; transform: translateY(0); }
-    .proj-ann-box {
-      background: rgba(4,4,5,.85);
-      border: 1px solid rgba(255,255,255,.2);
-      border-radius: 4px;
-      padding: 6px 10px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9.5px;
-      line-height: 1.8;
-      color: rgba(255,255,255,.78);
-      backdrop-filter: blur(10px);
-    }
-    .proj-ann-row { display: block; }
-    .proj-ann-k   { color: rgba(255,255,255,.35); margin-right: 5px; }
-
-    /* ── CAD assembly animation ── */
-    @keyframes cadIn {
-      from {
-        opacity: 0;
-        transform: translateX(var(--dx,0px)) translateY(var(--dy,24px)) scale(.95);
-        filter: blur(2px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0) translateY(0) scale(1);
-        filter: blur(0px);
-      }
-    }
-    .cad-in { animation: cadIn .65s cubic-bezier(.2,.8,.2,1) both; }
-  `;
-  document.head.appendChild(S);
-
-  /* ═══════════════════════════════════════════════════════════════
      GLOBALS
   ═══════════════════════════════════════════════════════════════ */
   document.getElementById("year").textContent = new Date().getFullYear();
   var RM = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var FP = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
 
   /* ═══════════════════════════════════════════════════════════════
      MOBILE NAV
@@ -104,7 +31,7 @@
   });
 
   /* ═══════════════════════════════════════════════════════════════
-     SCROLL PROGRESS  (tolerance-gauge style)
+     SCROLL PROGRESS
   ═══════════════════════════════════════════════════════════════ */
   var progressBar = document.getElementById("progressBar");
   function updateProgress() {
@@ -115,15 +42,15 @@
   updateProgress();
 
   /* ═══════════════════════════════════════════════════════════════
-     SCROLL REVEAL
+     SCROLL REVEAL  (simple fade, nothing stays hidden if JS/IO fails)
   ═══════════════════════════════════════════════════════════════ */
   var revEls = document.querySelectorAll(".reveal");
-  if ("IntersectionObserver" in window) {
+  if ("IntersectionObserver" in window && !RM) {
     var revIO = new IntersectionObserver(function (ents) {
       ents.forEach(function (e) {
         if (e.isIntersecting) { e.target.classList.add("in-view"); revIO.unobserve(e.target); }
       });
-    }, { threshold: 0.15, rootMargin: "0px 0px -60px 0px" });
+    }, { threshold: 0.05, rootMargin: "0px 0px -40px 0px" });
     revEls.forEach(function (el) { revIO.observe(el); });
   } else {
     revEls.forEach(function (el) { el.classList.add("in-view"); });
@@ -132,6 +59,7 @@
   /* ═══════════════════════════════════════════════════════════════
      CRANK-SLIDER HERO ANIMATION
      Mouse X → rotation speed (left = slow, right = fast)
+     Pauses automatically when the hero is off-screen.
   ═══════════════════════════════════════════════════════════════ */
     var canvas     = document.getElementById("fieldCanvas");
   var ctx        = canvas.getContext("2d");
@@ -139,6 +67,7 @@
   var crankAngle = 0;
   var mouseNorm  = 0.5;   // 0–1, updated on mousemove
   var crankRAF   = null;
+  var heroVisible = true;
 
   var NCYL = 4;
   // Inline-4 firing geometry: pins 1&4 together, 2&3 180° opposite
@@ -385,7 +314,7 @@
 
     ctx.restore();
 
-    if (!RM) crankRAF = requestAnimationFrame(drawCrank);
+    if (!RM && heroVisible) { crankRAF = requestAnimationFrame(drawCrank); } else { crankRAF = null; }
   }
 
   function setupHero() {
@@ -404,254 +333,88 @@
     mouseNorm = e.clientX / window.innerWidth;
   }, { passive: true });
 
-  /* ═══════════════════════════════════════════════════════════════
-     HERO PARALLAX
-  ═══════════════════════════════════════════════════════════════ */
-  var heroEl      = document.querySelector(".hero");
-  var heroContent = document.getElementById("heroContent");
-  var heroField   = document.querySelector(".hero-field");
-  var heroH       = heroEl.offsetHeight;
-  window.addEventListener("resize", function () { heroH = heroEl.offsetHeight; });
-
-  function parallax() {
-    var y = window.scrollY;
-    if (y > heroH * 1.2) return;
-    var prog = Math.min(y / heroH, 1);
-    if (!RM) {
-      heroContent.style.transform = "translateY(" + y * 0.28 + "px)";
-      heroField.style.transform   = "translateY(" + y * 0.08 + "px)";
-    }
-    heroContent.style.opacity = String(1 - prog * 1.15);
+  /* pause the animation when the hero scrolls out of view or the tab is hidden */
+  var heroEl = document.querySelector(".hero");
+  function resumeCrank() {
+    if (RM || !heroVisible || document.hidden || crankRAF) return;
+    crankRAF = requestAnimationFrame(drawCrank);
   }
-  window.addEventListener("scroll", parallax, { passive: true });
-  parallax();
-
-  /* ═══════════════════════════════════════════════════════════════
-     CURSOR SPOTLIGHT
-  ═══════════════════════════════════════════════════════════════ */
-  if (FP && !RM) {
-    var root = document.documentElement;
-    var tx = window.innerWidth / 2, ty = window.innerHeight * .4, cx = tx, cy = ty;
-    document.addEventListener("mousemove", function (e) {
-      tx = e.clientX; ty = e.clientY;
-      root.style.setProperty("--spot-opacity", "1");
-    }, { passive: true });
-    document.addEventListener("mouseleave", function () { root.style.setProperty("--spot-opacity", "0"); });
-    (function spot() {
-      cx += (tx - cx) * .09; cy += (ty - cy) * .09;
-      root.style.setProperty("--spot-x", cx + "px");
-      root.style.setProperty("--spot-y", cy + "px");
-      requestAnimationFrame(spot);
-    })();
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (ents) {
+      heroVisible = ents[0].isIntersecting;
+      if (heroVisible) resumeCrank();
+    }, { threshold: 0 }).observe(heroEl);
   }
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) { if (crankRAF) { cancelAnimationFrame(crankRAF); crankRAF = null; } }
+    else resumeCrank();
+  });
 
   /* ═══════════════════════════════════════════════════════════════
-     MAGNETIC BUTTONS
-  ═══════════════════════════════════════════════════════════════ */
-  if (FP && !RM) {
-    document.querySelectorAll(".magnetic").forEach(function (el) {
-      el.addEventListener("mousemove", function (e) {
-        var r = el.getBoundingClientRect();
-        el.style.transform = "translate(" +
-          (e.clientX - r.left - r.width  / 2) * .28 + "px," +
-          (e.clientY - r.top  - r.height / 2) * .35 + "px)";
-      });
-      el.addEventListener("mouseleave", function () { el.style.transform = ""; });
-    });
-  }
-
-  /* ═══════════════════════════════════════════════════════════════
-     ABOUT — SCROLL-LINKED WORD REVEAL
-  ═══════════════════════════════════════════════════════════════ */
-  (function () {
-    var el = document.querySelector("[data-scroll-text]");
-    if (!el) return;
-    el.innerHTML = el.textContent.trim().split(/\s+/).map(function (w) {
-      return '<span class="word">' + w + "</span>";
-    }).join(" ");
-    var words = el.querySelectorAll(".word"), tick = false;
-    function upd() {
-      var mid = window.innerHeight * .5;
-      words.forEach(function (w) {
-        var b = w.getBoundingClientRect();
-        w.classList.toggle("active", b.top + b.height / 2 <= mid);
-      });
-      tick = false;
-    }
-    window.addEventListener("scroll", function () {
-      if (!tick) { requestAnimationFrame(upd); tick = true; }
-    }, { passive: true });
-    window.addEventListener("resize", upd);
-    upd();
-  })();
-
-  /* ═══════════════════════════════════════════════════════════════
-     STAT COUNT-UP  +  DIMENSION-LINE CORNER BRACKETS
-  ═══════════════════════════════════════════════════════════════ */
-  (function () {
-    var stats = document.querySelectorAll("[data-count-to]");
-    if (!stats.length) return;
-
-    /* Draw SVG corner-bracket dimension lines around a stat card */
-    function addBrackets(card) {
-      var ns  = "http://www.w3.org/2000/svg";
-      var svg = document.createElementNS(ns, "svg");
-      svg.style.cssText =
-        "position:absolute;inset:-10px;" +
-        "width:calc(100% + 20px);height:calc(100% + 20px);" +
-        "overflow:visible;pointer-events:none;" +
-        "opacity:0;transition:opacity .5s .15s ease;";
-
-      function mk(x1, y1, x2, y2) {
-        var l = document.createElementNS(ns, "line");
-        l.setAttribute("x1", x1); l.setAttribute("y1", y1);
-        l.setAttribute("x2", x2); l.setAttribute("y2", y2);
-        l.setAttribute("stroke", "rgba(255,255,255,.22)");
-        l.setAttribute("stroke-width", ".75");
-        svg.appendChild(l);
-      }
-
-      var o = 10, b = 11;          // inset offset, bracket arm length
-      var W = card.offsetWidth  + 2*o;
-      var H = card.offsetHeight + 2*o;
-
-      /* top-left */    mk(o,   o,   o+b, o);   mk(o,   o,   o,   o+b);
-      /* top-right */   mk(W-o, o,   W-o-b, o); mk(W-o, o,   W-o, o+b);
-      /* bottom-left */ mk(o,   H-o, o+b, H-o); mk(o,   H-o, o,   H-o-b);
-      /* bottom-right */mk(W-o, H-o, W-o-b, H-o); mk(W-o, H-o, W-o, H-o-b);
-
-      card.appendChild(svg);
-      requestAnimationFrame(function () { svg.style.opacity = "1"; });
-    }
-
-    function countUp(el) {
-      var target = parseFloat(el.getAttribute("data-count-to"));
-      var suffix = el.getAttribute("data-suffix") || "";
-      if (RM) { el.textContent = target.toLocaleString() + suffix; return; }
-      var t0 = null;
-      requestAnimationFrame(function step(ts) {
-        if (!t0) t0 = ts;
-        var p = Math.min((ts - t0) / 1400, 1);
-        el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))).toLocaleString() + suffix;
-        if (p < 1) {
-          requestAnimationFrame(step);
-        } else {
-          var card = el.closest(".stat");
-          if (card) addBrackets(card);
-        }
-      });
-    }
-
-    if ("IntersectionObserver" in window) {
-      var cntIO = new IntersectionObserver(function (ents) {
-        ents.forEach(function (e) {
-          if (e.isIntersecting) { countUp(e.target); cntIO.unobserve(e.target); }
-        });
-      }, { threshold: 0.6 });
-      stats.forEach(function (el) { cntIO.observe(el); });
-    } else {
-      stats.forEach(countUp);
-    }
-  })();
-
-  /* ═══════════════════════════════════════════════════════════════
-     PROJECT ANNOTATIONS DATA
-     Technical specs shown on card hover (engineering callout style)
+     PROJECT HOVER ANNOTATIONS  (technical callouts on card hover)
   ═══════════════════════════════════════════════════════════════ */
   var ANNOTS = {
+    "smartbins":            [["TYPE","AUTO SORTER"],["VISION","OPENCV"],["SERVOS","6"],["SENSORS","4 ULTRASONIC"]],
+    "gaucho-racing": [["TYPE","FSAE RACE CAR"],["DIV","POWERTRAIN"],["SAFETY FACTOR","1.5"],["BRACKETS","-15% WT"]],
     "silver":               [["TYPE","24-IN VEX U"],   ["DRIVE","6-WHEEL TANK"], ["MTR","600 RPM × 8"],   ["GEAR","3:4 RATIO"]],
-    "sonic":                [["TYPE","15-IN VEX U"],   ["DRIVE","4-WHEEL TANK"], ["INTAKE","3-STG 4-MTR"],["GEAR","3:4 RATIO"]],
-    "traverse":             [["TYPE","RAIL CAMERA"],   ["MCU","ARDUINO"],        ["DRIVE","MOTORIZED"],   ["OUT","WIRELESS VID"]],
-    "compressed-air-motor": [["TYPE","AIR ENGINE"],    ["MAT","AL + BRASS"],     ["PROC","LATHE + MILL"], ["TOL","±0.005 IN"]],
-    "smartbins":            [["TYPE","AI SORTER"],     ["SENSE","OPTICAL CV"],   ["MCU","RASPBERRY PI"],  ["ML","TENSORFLOW"]],
     "rays":                 [["TYPE","DISASTER MON"],  ["SENSE","MULTI-AXIS"],   ["MCU","ARD + PI"],      ["OUT","LIVE DASH"]],
+    "neuro-drone": [["TYPE","EMG DRONE"],["FRAME","3D PRINTED"],["FLIGHTS","20+"],["ROLE","MECH DESIGN"]],
+    "robotic-hand": [["TYPE","CABLE-DRIVEN"],["ACT","5 SERVOS"],["GRIP","UP TO 2 LB"],["MFG","3D PRINTED"]],
+    "compressed-air-motor": [["TYPE","AIR ENGINE"],    ["MAT","AL + BRASS"],     ["PROC","LATHE + MILL"], ["TOL","±0.005 IN"]],
+    "traverse":             [["TYPE","RAIL CAMERA"],   ["MCU","ARDUINO"],        ["DRIVE","MOTORIZED"],   ["OUT","WIRELESS VID"]],
+    "eagle-scout":          [["TYPE","BALANCE BEAMS"], ["QTY","3 BUILT"],        ["TEAM","25 VOLUNTEERS"],["BUDGET","< $1,000"]],
+    "desk-setup":           [["TYPE","PERSONAL BUILDS"],["ITEMS","3 STANDS"]],
+    "sonic":                [["TYPE","15-IN VEX U"],   ["DRIVE","4-WHEEL TANK"], ["INTAKE","3-STG 4-MTR"],["GEAR","3:4 RATIO"]]
   };
 
   /* ═══════════════════════════════════════════════════════════════
-     3-D CARD TILT
-  ═══════════════════════════════════════════════════════════════ */
-  function addTilt(card) {
-    if (!FP || RM) return;
-    card.addEventListener("mousemove", function (e) {
-      var r  = card.getBoundingClientRect();
-      var px = (e.clientX - r.left) / r.width  - .5;
-      var py = (e.clientY - r.top)  / r.height - .5;
-      card.style.transform = "perspective(1000px) rotateX(" + (-py*8) + "deg) rotateY(" + (px*8) + "deg) translateY(-6px)";
-    });
-    card.addEventListener("mouseleave", function () { card.style.transform = ""; });
-  }
-
-  /* ═══════════════════════════════════════════════════════════════
-     PROJECT GRID  — render + annotations + CAD assembly
+     PROJECT GRID — render cards (image fallback, skill tags, status badge)
   ═══════════════════════════════════════════════════════════════ */
   var grid = document.getElementById("projectGrid");
-  var DIRS = [[-30,0],[0,30],[30,0],[-30,0],[0,30],[30,0]];  // entry directions
   var frag = document.createDocumentFragment();
 
-  PROJECTS.forEach(function (proj, idx) {
+  function markMissing(img) {
+    var thumb = img.closest(".project-thumb");
+    if (thumb) thumb.classList.add("no-img");
+    img.remove();
+  }
+
+  PROJECTS.forEach(function (proj) {
     var card = document.createElement("button");
     card.type = "button";
     card.className = "project-card";
     card.setAttribute("data-slug", proj.slug);
+    card.setAttribute("data-cats", proj.categories.join(" "));
 
-    /* Build annotation overlay */
     var rows = (ANNOTS[proj.slug] || []).map(function (row) {
       return '<span class="proj-ann-row"><span class="proj-ann-k">' + row[0] + '</span>' + row[1] + '</span>';
     }).join("");
-    var annHTML = rows
-      ? '<div class="proj-ann"><div class="proj-ann-box">' + rows + '</div></div>'
-      : "";
+    var annHTML = rows ? '<div class="proj-ann"><div class="proj-ann-box">' + rows + '</div></div>' : "";
+    var badge = proj.status ? '<span class="project-badge">' + esc(proj.status) + '</span>' : "";
+    if (proj.videos && proj.videos.length) badge += '<span class="project-badge project-badge--video">▶ Video</span>';
+    var tags = proj.skills.slice(0, 3).map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("");
 
     card.innerHTML =
       '<div class="project-thumb">' +
-        '<img src="' + proj.heroImage + '" alt="' + proj.title + '" loading="lazy"/>' +
-        annHTML +
+        '<img src="' + esc(proj.heroImage) + '" alt="' + esc(proj.title) + '" loading="lazy"/>' +
+        '<span class="thumb-fallback" aria-hidden="true">Images coming soon</span>' +
+        badge + annHTML +
       '</div>' +
       '<div class="project-body">' +
-        '<h3>' + proj.title + '</h3>' +
-        '<p class="project-subtitle">' + proj.subtitle + '</p>' +
-        '<p class="project-desc">'    + proj.description + '</p>' +
-        '<span class="project-cta">View Project →</span>' +
+        '<h3>' + esc(proj.title) + '</h3>' +
+        '<p class="project-subtitle">' + esc(proj.subtitle) + '</p>' +
+        '<p class="project-desc">' + esc(proj.description) + '</p>' +
+        '<ul class="tag-list project-tags">' + tags + '</ul>' +
+        '<span class="project-cta">View project →</span>' +
       '</div>';
 
+    var img = card.querySelector(".project-thumb img");
+    img.addEventListener("error", function () { markMissing(img); });
+
     card.addEventListener("click", function () { openModal(proj.slug); });
-    addTilt(card);
-
-    /* CAD direction CSS vars */
-    var d = DIRS[idx % DIRS.length];
-    card.style.setProperty("--dx", d[0] + "px");
-    card.style.setProperty("--dy", d[1] + "px");
-
     frag.appendChild(card);
   });
   grid.appendChild(frag);
-
-  /* CAD assembly observer — cards slide in like parts assembling */
-  var allCards = grid.querySelectorAll(".project-card");
-
-  if (!RM && "IntersectionObserver" in window) {
-    allCards.forEach(function (c) { c.style.opacity = "0"; });  // pre-hide
-
-    var cadIO = new IntersectionObserver(function (ents) {
-      ents.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        var card = e.target;
-        var idx  = Array.from(allCards).indexOf(card);
-        card.style.opacity        = "";               // hand off to keyframe
-        card.style.animationDelay = (idx * 0.07) + "s";
-        card.classList.add("cad-in");
-        card.addEventListener("animationend", function () {
-          card.classList.remove("cad-in");
-          card.style.opacity = "1";                   // lock in visible
-        }, { once: true });
-        cadIO.unobserve(card);
-      });
-    }, { threshold: 0.1 });
-
-    allCards.forEach(function (c) { cadIO.observe(c); });
-  } else {
-    allCards.forEach(function (c) { c.style.opacity = "1"; });
-  }
 
   /* ═══════════════════════════════════════════════════════════════
      MODAL
@@ -661,20 +424,61 @@
   var msubtitle = document.getElementById("modalSubtitle");
   var mtitle    = document.getElementById("modalTitle");
   var mdesc     = document.getElementById("modalDesc");
+  var mresult   = document.getElementById("modalResult");
   var mskills   = document.getElementById("modalSkills");
+  var mlinks    = document.getElementById("modalLinks");
   var mclose    = document.getElementById("modalClose");
+  var mvideos   = document.getElementById("modalVideos");
   var lastFocus = null;
+
+  /* YouTube links become embeds; anything else is treated as a video file */
+  function youtubeId(url) {
+    var m = String(url).match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+    return m ? m[1] : null;
+  }
+  function renderVideos(list) {
+    return (list || []).map(function (v) {
+      var id = youtubeId(v.src);
+      var cap = v.title ? '<figcaption>' + esc(v.title) + '</figcaption>' : "";
+      var media = id
+        ? '<iframe src="https://www.youtube-nocookie.com/embed/' + id + '" title="' + esc(v.title || "Project video") + '" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>'
+        : '<video controls playsinline preload="metadata"' + (v.poster ? ' poster="' + esc(v.poster) + '"' : "") + '><source src="' + esc(v.src) + '"></video>';
+      return '<figure class="modal-video">' + media + cap + '</figure>';
+    }).join("");
+  }
 
   function openModal(slug) {
     var p = PROJECTS.find(function (x) { return x.slug === slug; });
     if (!p) return;
-    mgallery.innerHTML    = p.gallery.map(function (s) {
-      return '<img src="' + s + '" alt="' + p.title + '" loading="lazy">';
+
+    mvideos.innerHTML = renderVideos(p.videos);
+    mvideos.hidden = !(p.videos && p.videos.length);
+
+    mgallery.innerHTML = p.gallery.map(function (s) {
+      return '<img src="' + esc(s) + '" alt="' + esc(p.title) + '" loading="lazy">';
     }).join("");
+    mgallery.hidden = false;
+    mgallery.querySelectorAll("img").forEach(function (im) {
+      im.addEventListener("error", function () {
+        im.remove();
+        if (!mgallery.querySelector("img")) {                         // no images yet
+          var hasVideo = p.videos && p.videos.length;
+          if (hasVideo) { mgallery.hidden = true; }
+          else { mgallery.innerHTML = '<div class="modal-gallery-empty">Images coming soon</div>'; }
+        }
+      });
+    });
+
     msubtitle.textContent = p.subtitle;
     mtitle.textContent    = p.title;
     mdesc.textContent     = p.description;
-    mskills.innerHTML     = p.skills.map(function (s) { return "<li>" + s + "</li>"; }).join("");
+    mresult.textContent   = p.result || "";
+    mresult.hidden        = !p.result;
+    mskills.innerHTML     = p.skills.map(function (s) { return "<li>" + esc(s) + "</li>"; }).join("");
+    mlinks.innerHTML      = (p.links || []).map(function (l) {
+      return '<a class="btn btn-ghost" href="' + esc(l.url) + '" target="_blank" rel="noopener noreferrer">' + esc(l.label) + '</a>';
+    }).join("");
+
     lastFocus = document.activeElement;
     overlay.classList.add("open");
     document.body.style.overflow = "hidden";
@@ -682,6 +486,7 @@
   }
 
   function closeModal() {
+    mvideos.innerHTML = "";   // stops any playing video
     overlay.classList.remove("open");
     document.body.style.overflow = "";
     if (lastFocus) lastFocus.focus();
